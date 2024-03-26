@@ -1,37 +1,43 @@
 <?php
-define('Emember',true);
-include('includes/dbconnect.php');
 
-if (!empty($_SESSION['email'])) {
-  header("Location: index.php");
+define('Emember', true);
+require('includes/dbconnect.php'); // Connect to the database
+
+// Ensure that the user is not logged in
+
+if (!empty($_SESSION['user_id'])) {
+    header("Location: index.php");
+    exit;
 }
 
-$error_message = "";
+if (isset($_POST["submit_admin"])) {
+    // Retrieve the user input
+    $email = $_POST['email'];
+    $password = $_POST["password"];
 
- if (isset($_POST['submit_login'])) {
-    $email    = $_POST['email'];
-    $password = $_POST['password'];
+    // Query the database for the user
+    $query = "SELECT * FROM users WHERE email = ?"; // Use a prepared statement to prevent SQL injection
+    $stmt = mysqli_prepare($conn, $query);
+    mysqli_stmt_bind_param($stmt, "s", $email); // Bind the user input to the prepared statement as a string
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
 
-    $sql = "SELECT * FROM users WHERE email='$email'";
-    $result = $conn->query($sql);
-
-    if ($result->num_rows == 1) {
-        $row = $result->fetch_assoc();
-
-        if(password_verify($password, $row['password'])){
-            sleep(2);
-            $_SESSION['user_id']   = $row['user_id'];
-            $_SESSION['email']     = $email;
-            $_SESSION['name']      = $row['name'];
-            $_SESSION['type']      = $row['type'];
-            
-            header("Location: index.php");
-        }
-        else {
-            $error_message = "Error: Incorrect password";
+    // Check if the user exists and the password is correct
+    if (mysqli_num_rows($result) > 0) {
+        $row = mysqli_fetch_assoc($result);
+        if (password_verify($password, $row['password'])) {
+            // Set the session variables and redirect to the admin index
+            $_SESSION["login"] = true;
+            $_SESSION["user_id"] = $row["user_id"];
+            $_SESSION["fullname"] = $row["fullname"];
+            // header("Location: index.php");
+            header("Location: dashboard/home.php");
+            exit;
+        } else {
+            echo "<script> alert('Wrong Password'); </script>";
         }
     } else {
-        $error_message = "Error: Email Not Found";
+        echo "<script> alert('User Not Registered'); </script>";
     }
 }
 ?>
@@ -45,7 +51,7 @@ $error_message = "";
     <link href="style.css" rel="stylesheet">
 
 </head>
-<body style="background-color: #F8F8F7;">
+<body>
 <div class="container">
     <div class="row">
     <div class="col-md-6 offset-md-3">
@@ -69,9 +75,9 @@ $error_message = "";
             <input type="password" name="password" class="input" placeholder="Enter your Password">
         </div>
         
-        <button type="submit" name="submit_login" class="button-submit">Sign In</button>
+        <button type="submit" name="submit_admin" class="button-submit">Sign in</button>
 
-        <p class="p">Don't have an account? <span class="span"><a href="signup.php">Sign Up</a></span>
+        <p class="p">Don't have an account? <span class="span"><a href="register.php">Sign Up</a></span>
     </form>
     </div>
   </div>

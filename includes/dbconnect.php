@@ -1,14 +1,15 @@
 <?php
+session_start();
+
 if(!defined('Emember')){
-    header('location: ../index.php');
+    header('location: index.php');
     die();
 }
 
 $servername = "localhost";
 $username = "root";
 $password = "";
-$dbname = "blogging_website";
-// $dbname = "everleas";
+$dbname = "acme-blogging";
 
 $conn = new mysqli($servername, $username, $password, $dbname);
 
