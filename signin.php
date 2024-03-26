@@ -56,7 +56,7 @@ $error_message = "";
         <?php endif; ?>
     <form method="post" class="form">
         <div class="flex-column">
-            <label>Email? </label>
+            <label>Email </label>
         </div>
         <div class="inputForm">
             <input type="email" name="email" class="input" placeholder="Enter your Email">
