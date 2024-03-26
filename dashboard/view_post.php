@@ -69,12 +69,24 @@ if (isset($_POST['submit_comment'])) {
         header("Location: view_post.php?PID=$post_id");
         exit;
     } else {
-        // Handle error
         echo "Error: " . $conn->error;
     }
+}
 
-    // Close database connection
-    $conn->close();
+
+if (isset($_POST['delete_post'])) {
+    $post_id = $_POST['post_id'];
+    $sql = "DELETE FROM blogpost WHERE post_id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $post_id);
+    
+    if ($stmt->execute()) {
+        sleep(2);
+        header("Location: home.php"); 
+        exit;
+    } else {
+        echo "Error: " . $conn->error;
+    }
 }
 
 $conn->close();
@@ -101,6 +113,10 @@ $conn->close();
 
     <?php if($session_id == $user_id ){ ?>
         <a href="edit_post.php?PID=<?= $post_id ?>" class="btn btn-outline-warning" style="width: 20%;">EDIT</a>
+        <form method="post">
+            <input type="hidden" name="post_id" value="<?=$post_id?>">
+            <button type="submit" name="delete_post" class="btn btn-outline-danger" style="width: 20%;">DELETE POST</button>
+        </form>
     <?php }?>
 
     <br>
