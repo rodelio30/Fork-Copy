@@ -31,7 +31,7 @@ if (!empty($_SESSION['email'])) {
                     if ($conn->query($sql) === TRUE) {
                         // Registration successful
                         sleep(2);
-                        header('location: login.php');
+                        header('location: signup.php');
                         die();
                     } else {
                         $error_message = "Error: " . $sql . "<br>" . $conn->error;
