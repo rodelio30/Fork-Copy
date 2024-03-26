@@ -6,9 +6,11 @@ if (empty($_SESSION['user_id'])) {
   header("Location: ../signin.php");
 }
 
+$session_id = $_SESSION['user_id'];
 $post_id = $_GET['PID'];
 $sql = "SELECT 
             b.post_id,
+            b.user_id,
             b.title,
             b.description,
             b.post_type,
@@ -25,6 +27,7 @@ $result = $conn->query($sql);
 
 if ($result->num_rows > 0) {
      $row         = $result->fetch_assoc();
+     $user_id     = $row['user_id'];
      $title       = $row['title'];
      $description = $row['description'];
      $fullname    = $row['fullname'];
@@ -95,7 +98,11 @@ $conn->close();
     <?php include "navigation_header.php"; ?>
 
     <br> 
-    <a href="edit_post.php?PID=<?= $post_id ?>" class="btn btn-outline-warning" style="width: 20%;">EDIT</a>
+
+    <?php if($session_id == $user_id ){ ?>
+        <a href="edit_post.php?PID=<?= $post_id ?>" class="btn btn-outline-warning" style="width: 20%;">EDIT</a>
+    <?php }?>
+
     <br>
 
     <?php if($post_type == 'text'){ ?>
