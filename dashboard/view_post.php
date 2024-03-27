@@ -59,7 +59,6 @@ if (isset($_POST['submit_comment'])) {
     $user_id = $_SESSION['user_id'];
     $comment_text = $_POST['comment_text'];
 
-    // Insert comment into database
     $sql = "INSERT INTO comments (post_id, user_id, comment_text) VALUES (?, ?, ?)";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("iis", $post_id, $user_id, $comment_text);
