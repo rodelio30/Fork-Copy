@@ -8,13 +8,64 @@ if (empty($_SESSION['user_id'])) {
 
 $success_message = "";
 
+
+$post_id = $_GET['PID'];
+
+$sql = "SELECT 
+            b.post_id,
+            b.title,
+            b.description,
+            b.post_type,
+            b.content,
+            u.fullname
+        FROM 
+            blogpost AS b
+        JOIN
+            users AS u ON b.user_id = u.user_id
+        WHERE
+            b.post_id = $post_id";
+
+$result = $conn->query($sql);
+
+if ($result->num_rows > 0) {
+     $row         = $result->fetch_assoc();
+     $title       = $row['title'];
+     $post_id     = $row['post_id'];
+     $description = $row['description'];
+     $fullname    = $row['fullname'];
+     $post_type   = $row['post_type'];
+     $content     = $row['content'];
+
+     if($post_type =='iframe') {
+        $content = htmlspecialchars($content);
+     }
+
+     $sql_comments = "SELECT 
+                        c.comment_id,
+                        c.comment_text,
+                        c.created_at,
+                        u.fullname AS commenter
+                    FROM 
+                        comments AS c
+                    JOIN
+                        users AS u ON c.user_id = u.user_id
+                    WHERE
+                        c.post_id = $post_id
+                    ORDER BY
+                        c.created_at DESC";
+
+    $result_comments = $conn->query($sql_comments);
+
+} else {
+    echo "Post not found.";
+}
+
+
     if (isset($_POST['edit_post'])) {
         $user_id     = $_SESSION['user_id'];
         $title       = $_POST['title'];
         $description = $_POST['description'];
 
-        $post_type = $_POST['post_type'];
-        
         switch ($post_type) {
             case 'text':
                 $content = $_POST['content'];
@@ -59,86 +110,21 @@ $success_message = "";
 
         $update_date = date("Y-m-d");
 
-        $sql = "INSERT INTO blogpost (user_id, title, description, post_type, content, update_date) VALUES ('$user_id', '$title', '$description', '$post_type','$content', '$update_date')";
+        $sql = "UPDATE blogpost SET 
+            title = '$title',
+            description = '$description',
+            content = '$content',
+            update_date = '$update_date'
+        WHERE post_id = $post_id";
         
         if ($conn->query($sql) === TRUE) {
             // Registration successful
             sleep(1);
             header('location: home.php');
-
         } else {
             $error_message = "Error: " . $sql . "<br>" . $conn->error;
         }
     }
-
-$post_id = $_GET['PID'];
-
-$sql = "SELECT 
-            b.post_id,
-            b.title,
-            b.description,
-            b.post_type,
-            b.content,
-            u.fullname
-        FROM 
-            blogpost AS b
-        JOIN
-            users AS u ON b.user_id = u.user_id
-        WHERE
-            b.post_id = $post_id";
-
-$result = $conn->query($sql);
-
-if ($result->num_rows > 0) {
-     $row         = $result->fetch_assoc();
-     $title       = $row['title'];
-     $description = $row['description'];
-     $fullname    = $row['fullname'];
-     $post_type   = $row['post_type'];
-     $content     = $row['content'];
-
-     $sql_comments = "SELECT 
-                        c.comment_id,
-                        c.comment_text,
-                        c.created_at,
-                        u.fullname AS commenter
-                    FROM 
-                        comments AS c
-                    JOIN
-                        users AS u ON c.user_id = u.user_id
-                    WHERE
-                        c.post_id = $post_id
-                    ORDER BY
-                        c.created_at DESC";
-
-    $result_comments = $conn->query($sql_comments);
-
-} else {
-    echo "Post not found.";
-}
-
-if (isset($_POST['submit_comment'])) {
-    $post_id = $_POST['post_id'];
-    $user_id = $_SESSION['user_id'];
-    $comment_text = $_POST['comment_text'];
-
-    // Insert comment into database
-    $sql = "INSERT INTO comments (post_id, user_id, comment_text) VALUES (?, ?, ?)";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("iis", $post_id, $user_id, $comment_text);
-    
-    if ($stmt->execute()) {
-        // Comment added successfully
-        header("Location: view_post.php?PID=$post_id");
-        exit;
-    } else {
-        // Handle error
-        echo "Error: " . $conn->error;
-    }
-
-    // Close database connection
-    $conn->close();
-}
 
 $conn->close();
 
@@ -169,21 +155,26 @@ $conn->close();
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Description</label>
-                    <input type="text" class="form-control" name="description" placeholder="Enter your Description">
+                    <input type="text" class="form-control" name="description" value="<?=$description?>" placeholder="Enter your Description">
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Content</label>
-                    <select id="post-select" name="post_type" class="m-t-10" class="form-control m-t-10 text-left">
-                        <option value="text">Text</option>
-                        <option value="image">Photo</option>
-                        <option value="iframe">Iframe of Youtube Video</option>
-                    </select>
-                    <input type="text" id="text-content" name="content" class="form-control" placeholder="Enter your Content">
-                    <input type="file" id="image-content" name="image" class="form-control-file" style="display: none;">
-                    <input type="text" id="link-content" name="link" class="form-control" placeholder="Enter your Link here" style="display: none;">
+
+                    <?php if($post_type == 'text') {?>
+                        <input type="text" name="content" value="<?=$content?>" class="form-control" placeholder="Enter your Content">
+                    <?php }?>
+
+                    <?php if($post_type == 'image') {?>
+                        <input type="file" name="image" class="form-control-file">
+                    <?php }?>
+
+                    <?php if($post_type == 'iframe') {?>
+                        <input type="text" name="link" value="<?=$content?>" class="form-control" placeholder="Enter your Content">
+                    <?php }?>
+
                      <div id="emailHelp" class="form-text">Select what kind of post do you want</div>
                 </div>
-                <button type="submit" name="add_post" class="btn btn-outline-primary">Submit</button>
+                <button type="submit" name="edit_post" class="btn btn-outline-primary">Submit</button>
                 </form>
         </div>
     </div>
