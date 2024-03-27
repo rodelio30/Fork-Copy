@@ -1,9 +1,7 @@
 <?php
 
 define('Emember', true);
-require('includes/dbconnect.php'); // Connect to the database
-
-// Ensure that the user is not logged in
+require('includes/dbconnect.php'); 
 
 if (!empty($_SESSION['user_id'])) {
     header("Location: index.php");
@@ -11,26 +9,26 @@ if (!empty($_SESSION['user_id'])) {
 }
 
 if (isset($_POST["submit_admin"])) {
-    // Retrieve the user input
+
     $email = $_POST['email'];
     $password = $_POST["password"];
 
-    // Query the database for the user
-    $query = "SELECT * FROM users WHERE email = ?"; // Use a prepared statement to prevent SQL injection
+    
+    $query = "SELECT * FROM users WHERE email = ?"; 
     $stmt = mysqli_prepare($conn, $query);
-    mysqli_stmt_bind_param($stmt, "s", $email); // Bind the user input to the prepared statement as a string
+    mysqli_stmt_bind_param($stmt, "s", $email); 
     mysqli_stmt_execute($stmt);
     $result = mysqli_stmt_get_result($stmt);
 
-    // Check if the user exists and the password is correct
+    
     if (mysqli_num_rows($result) > 0) {
         $row = mysqli_fetch_assoc($result);
         if (password_verify($password, $row['password'])) {
-            // Set the session variables and redirect to the admin index
+            
             $_SESSION["login"] = true;
             $_SESSION["user_id"] = $row["user_id"];
             $_SESSION["fullname"] = $row["fullname"];
-            // header("Location: index.php");
+           
             header("Location: dashboard/home.php");
             exit;
         } else {
@@ -57,9 +55,6 @@ if (isset($_POST["submit_admin"])) {
     <div class="col-md-6 offset-md-3">
 
     <br> <br>
-        <?php if (!empty($error_message)): ?>
-            <!-- <div class="alert alert-danger text-center"><?php echo $error_message; ?></div> -->
-        <?php endif; ?>
     <form method="post" class="form">
         <div class="flex-column">
             <label>Email </label>
