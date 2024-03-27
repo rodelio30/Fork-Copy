@@ -31,21 +31,6 @@ if (empty($_SESSION['user_id'])) {
 
   <div class="row row-cols-2">
   <?php
-    // $sql = "SELECT user_id, title, description, post_type, content FROM blogpost";
-    // $sql = "SELECT 
-    //         b.post_id,
-    //         b.user_id,
-    //         b.title,
-    //         b.description,
-    //         b.post_type,
-    //         b.content,
-    //         b.update_date,
-    //         u.fullname
-    //     FROM 
-    //         blogpost AS b
-    //     JOIN
-    //         users AS u ON b.user_id = u.user_id";
-
     $sql = "SELECT 
             b.post_id,
             b.title,
@@ -68,12 +53,11 @@ if (empty($_SESSION['user_id'])) {
     $result = $conn->query($sql);
 
     if ($result->num_rows > 0) {
-        // Output the card list
+
         while ($row = $result->fetch_assoc()) {
           $timestamp = strtotime($row['update_date']);
           $formattedDate = date("F j, Y", $timestamp);
           
-          // Check the post type and generate HTML accordingly
           switch ($row['post_type']) {
             case 'text':
               echo '<div class="col-12 col-lg-6 col-md-12 col-sm-12">';
