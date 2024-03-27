@@ -25,10 +25,7 @@ $success_message = "";
                     if ($_FILES['image']['error'] === UPLOAD_ERR_OK) {
                         $tempname = $_FILES["image"]["tmp_name"];
                         $folder = "img/post/";
-                        // $file_extension = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
-                        // $content = uniqid('image_') . '.' . $file_extension;
-                        // $destination = $folder . $content;
-
+        
                         $file_extension = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
                         $content = uniqid('image_') . '.' . $file_extension;
                         $destination = $folder . $content;
@@ -54,8 +51,6 @@ $success_message = "";
             default:
                 break;
         }
-
-        // $content     = $_POST['content'];
 
         $update_date = date("Y-m-d");
 
@@ -124,19 +119,17 @@ $success_message = "";
 </body>
 </html>
 <script>
-    // Get references to the input elements
     var textInput = document.getElementById("text-content");
     var imageInput = document.getElementById("image-content");
     var linkInput = document.getElementById("link-content");
 
-    // Add event listener to the select dropdown
+   
     document.getElementById("post-select").addEventListener("change", function() {
-        // Hide all input elements initially
+        
         textInput.style.display = "none";
         imageInput.style.display = "none";
         linkInput.style.display = "none";
 
-        // Show the input element based on the selected option
         var selectedOption = this.value;
         if (selectedOption === "text") {
             textInput.style.display = "block";
