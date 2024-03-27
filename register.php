@@ -9,8 +9,6 @@ if (!empty($_SESSION['email'])) {
  $error_message = "";
 
     if (isset($_POST['submit-register'])) {
-        // $name             = $_POST['name'];
-        // $email            = $_POST['email'];
         $name             = filter_var($_POST['fullname'], FILTER_SANITIZE_STRING);
         $email            = filter_var($_POST['email'], FILTER_SANITIZE_EMAIL);
         $password         = $_POST['password'];
